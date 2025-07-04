@@ -1,0 +1,9 @@
+services:
+  elixir:
+    build: .
+    container_name: northwind_elixir_traders_app
+    volumes:
+      - .:/app
+      - /app/_build
+      - /app/deps
+    command: tail -f /dev/null

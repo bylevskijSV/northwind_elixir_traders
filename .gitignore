@@ -23,3 +23,5 @@ northwind_elixir_traders-*.tar
 /tmp/
 
 /.elixir_ls
+
+/*.db
