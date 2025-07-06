@@ -1,7 +1,12 @@
 services:
   elixir:
-    build: .
+    build:
+      context: .
+      args:
+        APP_UID: ${APP_UID}
+        APP_GID: ${APP_GID}
     container_name: northwind_elixir_traders_app
+    user: "${APP_UID}:${APP_GID}"
     volumes:
       - .:/app
       - /app/_build
