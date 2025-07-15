@@ -1,2 +1,2 @@
-alias NorthwindElixirTraders.Repo
+alias NorthwindElixirTraders.{Repo, Supplier, Employee, Category}
 IEx.configure(inspect: [charlists: :as_lists])
