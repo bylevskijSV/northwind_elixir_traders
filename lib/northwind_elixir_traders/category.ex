@@ -9,13 +9,13 @@ defmodule NorthwindElixirTraders.Category do
   schema "categories" do
     field(:name, :string)
     field(:description, :string)
-    has_many(:products, Product)
+    has_many(:products, Product, on_replace: :nilify)
 
     timestamps(type: :utc_datetime)
   end
 
   def changeset(data, params \\ %{}) do
-    permitted = [:name, :description]
+    permitted = [:id, :name, :description]
     required = [:name]
 
     data
@@ -23,5 +23,7 @@ defmodule NorthwindElixirTraders.Category do
     |> validate_required(required)
     |> validate_length(:name, max: @name_mxlen)
     |> validate_length(:description, max: @desc_mxlen)
+    |> unique_constraint([:name])
+    |> unique_constraint([:id])
   end
 end
