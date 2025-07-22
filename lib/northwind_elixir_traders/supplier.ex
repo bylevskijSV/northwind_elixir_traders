@@ -19,13 +19,14 @@ defmodule NorthwindElixirTraders.Supplier do
   end
 
   def changeset(data, params \\ %{}) do
-    permitted = [:name, :contact_name, :address, :city, :postal_code, :country, :phone]
-    required = [:name]
+    permitted = [:id, :name, :contact_name, :address, :city, :postal_code, :country, :phone]
+    required = permitted |> List.delete(:id)
 
     data
     |> cast(params, permitted)
     |> validate_required(required)
     |> validate_length(:name, max: @name_mxlen)
     |> unique_constraint([:name])
+    |> unique_constraint([:id])
   end
 end
