@@ -24,4 +24,7 @@ northwind_elixir_traders-*.tar
 
 /.elixir_ls
 
-/northwind_elixir_traders_repo.db*
+/.ash_history
+
+/priv/repo/app.db*
+/NortwhindTraders-original.db-*

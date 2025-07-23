@@ -130,8 +130,7 @@ defmodule NorthwindElixirTraders.DataImporter do
     module =
       singularize(table)
       |> then(&List.insert_at([app], -1, &1))
-      |> Enum.map(&String.to_existing_atom/1)
-      |> Module.concat()
+      |> Module.safe_concat()
 
     %{module_name: module, empty_struct: struct(module)}
   end

@@ -6,6 +6,7 @@ defmodule NorthwindElixirTraders.MixProject do
       app: :northwind_elixir_traders,
       version: "0.1.0",
       elixir: "~> 1.18",
+      aliases: aliases(),
       start_permanent: Mix.env() == :prod,
       deps: deps()
     ]
@@ -24,6 +25,13 @@ defmodule NorthwindElixirTraders.MixProject do
     [
       {:ecto_sqlite3, "~> 0.18.1"},
       {:tzdata, "~> 1.1"}
+    ]
+  end
+
+  defp aliases do
+    [
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      "ecto.reset": ["ecto.drop", "ecto.setup", "run priv/repo/seed.exs"]
     ]
   end
 end

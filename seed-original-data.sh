@@ -1,0 +1,1 @@
+sqlite3 -batch -echo NortwhindTraders-original.db < ./priv/repo/nt.sql
