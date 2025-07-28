@@ -81,6 +81,13 @@ defmodule NorthwindElixirTraders.DataImporter do
     |> Enum.map(fn {k, _v} -> k end)
   end
 
+  def teardown(), do: prioritize() |> Enum.reverse() |> Enum.map(&Repo.delete_all/1)
+
+  def reset() do
+    teardown()
+    import_all_modeled()
+  end
+
   def import_all_modeled() do
     prioritize() |> Enum.map(&model_to_table/1) |> Enum.map(&insert_all_from/1)
   end
