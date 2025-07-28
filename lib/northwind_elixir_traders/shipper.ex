@@ -1,8 +1,7 @@
 defmodule NorthwindElixirTraders.Shipper do
   use Ecto.Schema
   import Ecto.Changeset
-
-  alias NorthwindElixirTraders.PhoneNumbers
+  alias NorthwindElixirTraders.{PhoneNumbers, Order}
 
   @name_mxlen 50
   @phone_mxlen 15
@@ -10,7 +9,7 @@ defmodule NorthwindElixirTraders.Shipper do
   schema "shippers" do
     field(:name, :string)
     field(:phone, :string)
-    # has_many(:products, Product, on_replace: :nilify)
+    has_many(:orders, Order, on_replace: :nilify)
 
     timestamps(type: :utc_datetime)
   end
