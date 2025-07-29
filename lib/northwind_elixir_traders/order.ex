@@ -1,7 +1,7 @@
 defmodule NorthwindElixirTraders.Order do
   use Ecto.Schema
   import Ecto.Changeset
-  alias NorthwindElixirTraders.{Customer, Employee, Shipper, Validations}
+  alias NorthwindElixirTraders.{Customer, Employee, Shipper, OrderDetail, Validations}
 
   schema "orders" do
     field(:date, :utc_datetime)
@@ -9,6 +9,7 @@ defmodule NorthwindElixirTraders.Order do
     belongs_to(:customer, Customer)
     belongs_to(:employee, Employee)
     belongs_to(:shipper, Shipper)
+    has_many(:order_details, OrderDetail)
 
     timestamps(type: :utc_datetime)
   end
