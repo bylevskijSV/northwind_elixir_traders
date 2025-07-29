@@ -6,7 +6,7 @@ services:
         APP_UID: ${APP_UID}
         APP_GID: ${APP_GID}
     container_name: northwind_elixir_traders_app
-    user: "${APP_UID}:${APP_GID}"
+    user: "1000:1000"
     volumes:
       - .:/app
       - /app/_build
