@@ -29,23 +29,6 @@ defmodule NorthwindElixirTraders.DataImporter do
     end
   end
 
-  def get_application() do
-    __MODULE__
-    |> Module.split()
-    |> hd()
-    |> List.wrap()
-    |> Module.concat()
-    |> Application.get_application()
-  end
-
-  def get_modules() do
-    get_application()
-    |> :application.get_key(:modules)
-    |> elem(1)
-    |> Enum.map(&(Module.split(&1) |> tl))
-    |> List.flatten()
-  end
-
   def get_modules_of_modeled_tables() do
     get_tables_to_import()
     |> Enum.map(&table_to_internals/1)
@@ -108,7 +91,11 @@ defmodule NorthwindElixirTraders.DataImporter do
   end
 
   def get_tables_to_import() do
-    plurals = get_modules() |> Enum.map(&pluralize/1)
+    plurals =
+      NorthwindElixirTraders.get_own_modules()
+      |> Enum.map(&(Module.split(&1) |> tl))
+      |> List.flatten()
+      |> Enum.map(&pluralize/1)
 
     table_names()
     |> elem(1)
