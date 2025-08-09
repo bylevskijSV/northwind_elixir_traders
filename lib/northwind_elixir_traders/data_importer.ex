@@ -201,7 +201,12 @@ defmodule NorthwindElixirTraders.DataImporter do
           |> Enum.map(&Enum.member?(cols, &1))
           |> Enum.reduce(false, fn x, acc -> acc or x end)
 
-        res = r.rows |> Enum.map(&Enum.zip(cols, &1)) |> Enum.map(&Map.new/1)
+        res =
+          r.rows
+          |> Enum.map(&Enum.zip(cols, &1))
+          |> Enum.map(&Map.new/1)
+          |> Enum.map(&treat_price/1)
+
         res = if must_treat_dates?, do: Enum.map(res, &treat_dates/1), else: res
         {:ok, res}
 
@@ -224,7 +229,7 @@ defmodule NorthwindElixirTraders.DataImporter do
   def insert_all_from(table) do
     %{module_name: modname, empty_struct: estruct} = table_to_internals(table)
     {:ok, data} = select_all(table)
-    changeset = fn m -> apply(modname, :changeset, [estruct, m]) end
+    changeset = fn m -> apply(modname, :import_changeset, [estruct, m]) end
     data |> Enum.map(&changeset.(&1)) |> Enum.map(&Repo.insert/1)
   end
 
@@ -247,6 +252,10 @@ defmodule NorthwindElixirTraders.DataImporter do
     |> Stream.map(&Macro.underscore/1)
     |> Stream.map(&String.to_atom/1)
     |> Enum.to_list()
+  end
+
+  def treat_price(m) when is_map(m) do
+    if :price in Map.keys(m), do: %{m | price: round(m.price * 100)}, else: m
   end
 
   def treat_dates(m) when is_map(m) do

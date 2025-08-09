@@ -16,7 +16,7 @@ defmodule NorthwindElixirTraders.Country do
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(data, params \\ %{}) do
+  def import_changeset(data, params \\ %{}) do
     permitted = [:name, :dial, :alpha3]
     required = permitted
 
@@ -53,7 +53,7 @@ defmodule NorthwindElixirTraders.Country do
     [:name, :dial, :alpha3]
     |> Enum.zip(Tuple.to_list(country))
     |> Map.new()
-    |> then(&changeset(%__MODULE__{}, &1))
+    |> then(&import_changeset(struct(__MODULE__), &1))
     |> Repo.insert()
   end
 

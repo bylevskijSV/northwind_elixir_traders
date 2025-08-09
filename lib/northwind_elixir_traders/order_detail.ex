@@ -11,9 +11,9 @@ defmodule NorthwindElixirTraders.OrderDetail do
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(data, params \\ %{}) do
+  def import_changeset(data, params \\ %{}) do
     permitted = [:id, :quantity, :order_id, :product_id]
-    requried = permitted |> List.delete(:id)
+    requried = permitted
 
     data
     |> cast(params, permitted)

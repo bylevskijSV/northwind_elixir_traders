@@ -14,13 +14,14 @@ defmodule NorthwindElixirTraders.Supplier do
     field(:country, :string)
     field(:phone, :string)
     has_many(:products, Product)
+    has_many(:orders, through: [:products, :order_details, :order])
 
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(data, params \\ %{}) do
+  def import_changeset(data, params \\ %{}) do
     permitted = [:id, :name, :contact_name, :address, :city, :postal_code, :country, :phone]
-    required = permitted |> List.delete(:id)
+    required = permitted
 
     data
     |> cast(params, permitted)

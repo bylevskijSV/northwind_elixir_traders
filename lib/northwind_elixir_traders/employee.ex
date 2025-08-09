@@ -9,6 +9,7 @@ defmodule NorthwindElixirTraders.Employee do
   schema "employees" do
     field(:last_name, :string)
     field(:first_name, :string)
+    field(:name, :string, virtual: true)
     field(:birth_date, :date)
     field(:photo, :string)
     field(:notes, :string)
@@ -17,9 +18,13 @@ defmodule NorthwindElixirTraders.Employee do
     timestamps(type: :utc_datetime)
   end
 
-  def changeset(data, params \\ %{}) do
+  def populate_name(%__MODULE__{first_name: first, last_name: last} = e) do
+    %{e | name: last <> " " <> first}
+  end
+
+  def import_changeset(data, params \\ %{}) do
     permitted = [:id, :last_name, :first_name, :birth_date, :photo, :notes]
-    required = permitted |> List.delete(:id)
+    required = permitted
 
     data
     |> cast(params, permitted)
