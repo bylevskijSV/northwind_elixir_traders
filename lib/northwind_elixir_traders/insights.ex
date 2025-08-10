@@ -10,7 +10,8 @@ defmodule NorthwindElixirTraders.Insights do
     Employee,
     Shipper,
     Supplier,
-    Category
+    Category,
+    Joins
   }
 
   @timeout 10_000
@@ -19,41 +20,9 @@ defmodule NorthwindElixirTraders.Insights do
   @tables [Customer, Employee, Shipper, Category, Supplier, Product, OrderDetail, Order]
   @m_tables @tables -- [Order, OrderDetail]
 
-  def query_entity_by_product_quantity(Product = m) do
-    from(x in m,
-      join: od in assoc(x, :order_details),
-      group_by: x.id,
-      select: %{id: x.id, name: x.name, quantity: sum(od.quantity)}
-    )
-  end
-
-  def query_entity_by_product_quantity(m) when m in [Supplier, Category] do
-    from(x in m,
-      join: p in assoc(x, :products),
-      join: od in assoc(p, :order_details),
-      group_by: x.id,
-      select: %{id: x.id, name: x.name, quantity: sum(od.quantity)}
-    )
-  end
-
-  def query_entity_by_product_quantity(m) when m in @m_tables do
-    query =
-      from(x in m,
-        join: o in assoc(x, :orders),
-        join: od in assoc(o, :order_details),
-        join: p in assoc(od, :product),
-        group_by: x.id,
-        select: %{id: x.id, quantity: sum(od.quantity)}
-      )
-
-    if m == Employee do
-      select_merge(query, [x, o, od, p], %{
-        name: fragment("? || ' ' || ?", x.last_name, x.first_name)
-      })
-    else
-      select_merge(query, [x, o, od, p], %{name: x.name})
-    end
-  end
+  def query_entity_record_totals(m), do: Joins.p_od_group_and_select(m)
+  def query_entity_by_product_quantity(m), do: Joins.p_od_group_and_select(m)
+  def query_entity_by_order_revenue(m), do: Joins.p_od_group_and_select(m)
 
   def calculate_total_value_of_orders(orders, opts \\ [max_concurrency: @max_concurrency])
       when is_list(orders) and is_list(opts) do
@@ -89,42 +58,6 @@ defmodule NorthwindElixirTraders.Insights do
   end
 
   def query_customers_by_order_revenue, do: query_entity_by_order_revenue(Customer)
-
-  def query_entity_by_order_revenue(m) when m in [Supplier, Category] do
-    from(x in m,
-      join: p in assoc(x, :products),
-      join: od in assoc(p, :order_details),
-      group_by: x.id,
-      select: %{id: x.id, name: x.name, revenue: sum(od.quantity * p.price)}
-    )
-  end
-
-  def query_entity_by_order_revenue(Product = m) do
-    from(x in m,
-      join: od in assoc(x, :order_details),
-      group_by: x.id,
-      select: %{id: x.id, name: x.name, revenue: sum(od.quantity * x.price)}
-    )
-  end
-
-  def query_entity_by_order_revenue(m) when m in @m_tables do
-    query =
-      from(x in m,
-        join: o in assoc(x, :orders),
-        join: od in assoc(o, :order_details),
-        join: p in assoc(od, :product),
-        group_by: x.id,
-        select: %{id: x.id, revenue: sum(od.quantity * p.price)}
-      )
-
-    if m == Employee do
-      select_merge(query, [x, o, od, p], %{
-        name: fragment("? || ' ' || ?", x.last_name, x.first_name)
-      })
-    else
-      select_merge(query, [x, o, od, p], %{name: x.name})
-    end
-  end
 
   def query_top_n_customers_by_order_revenue(n \\ 5) do
     from(s in subquery(query_customers_by_order_revenue()),
