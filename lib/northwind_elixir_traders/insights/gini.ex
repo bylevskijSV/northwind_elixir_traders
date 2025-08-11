@@ -17,13 +17,24 @@ defmodule NorthwindElixirTraders.Insights.Gini do
   defdelegate query_entity_by_order_revenue(m), to: Insights
   defdelegate count_entity_orders(m, condition), to: Insights
   defdelegate count_customers_orders(condition), to: Insights
-  defdelegate calculate_top_n_customers_by_order_value(m), to: Insights
+  defdelegate calculate_top_n_entity_by(m, field, limit), to: Insights
 
   @tables [Customer, Employee, Shipper, Category, Supplier, Product, OrderDetail, Order]
   @m_tables @tables -- [Order, OrderDetail]
 
-  def gini(m) when m in @m_tables do
-    m |> generate_entity_share_of_revenue_xy() |> calculate_gini_coeff()
+  def gini(m, field) do
+    generate_entity_share_of_xy(m, field) |> calculate_gini_coeff()
+  end
+
+  def generate_customer_share_of_revenue_xy, do: generate_entity_share_of_revenue_xy(Customer)
+  def generate_entity_share_of_revenues_xy(m), do: generate_entity_share_of_xy(m, :revenue)
+
+  def generate_entity_share_of_xy(m, field) do
+    0..count_entity_orders(m, :with)
+    |> Task.async_stream(&{&1, calculate_top_n_entity_by(m, field, &1)})
+    |> Enum.to_list()
+    |> extract_task_results()
+    |> normalize_xy()
   end
 
   def generate_entity_share_of_revenue_xy(m) when m in @m_tables do
@@ -48,14 +59,6 @@ defmodule NorthwindElixirTraders.Insights.Gini do
   def query_top_n_entity_by_order_revenue(m, n \\ 5)
       when m in @m_tables and is_integer(n) and n >= 0 do
     from(s in subquery(query_entity_by_order_revenue(m)), order_by: [desc: s.revenue], limit: ^n)
-  end
-
-  def generate_customer_share_of_revenues_xy do
-    0..count_customers_orders(:with)
-    |> Task.async_stream(&{&1, calculate_top_n_customers_by_order_value(&1)})
-    |> Enum.to_list()
-    |> extract_task_results()
-    |> normalize_xy()
   end
 
   def extract_task_results(r) when is_list(r), do: Enum.map(r, &elem(&1, 1))
